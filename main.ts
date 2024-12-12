@@ -4,7 +4,7 @@ import { VertexAI } from "https://esm.sh/@google-cloud/vertexai@1.9.2?dts"
 
 await load({ export: true });
 
-const octokit = new Octokit({ auth: Deno.env.get("GITHUB_ACCESS_TOKEN") });
+const octokit = new Octokit({ auth: Deno.env.get("GH_ACCESS_TOKEN") });
 
 octokit.rest.users.getAuthenticated();
 
