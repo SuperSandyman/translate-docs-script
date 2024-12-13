@@ -23,7 +23,7 @@ const getFilesInDirectory = async (
 	path: string,
 ) => {
 	try {
-		const extention = Deno.env.get("TARGET_FILE_EXTENTION");
+		const extention = Deno.env.get("TARGET_FILE_EXTENSION");
 
 		if (!extention) {
 			console.error("extension が設定されていません。");
