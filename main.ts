@@ -26,7 +26,7 @@ const getFilesInDirectory = async (
 		const extention = Deno.env.get("TARGET_FILE_EXTENTION");
 
 		if (!extention) {
-			console.error("環境変数が設定されていません。");
+			console.error("extension が設定されていません。");
 			return;
 		}
 
@@ -90,7 +90,7 @@ const translateText = async (content_url: string) => {
 	const model = Deno.env.get("VERTEX_AI_MODEL");
 
 	if (!projectId || !location || !model || !prompt_url) {
-		console.error("環境変数が設定されていません。");
+		console.error("projectId, location, model, prompt_url が設定されていません。");
 		return;
 	}
 
@@ -127,7 +127,7 @@ const main = async () => {
 	const hashFilePath = Deno.env.get("HASH_FILE_PATH");
 
 	if (!owner || !repo || !directoryPath || !hashFilePath) {
-		console.error("環境変数が設定されていません。");
+		console.error("owner, repo, directoryPath, hashFilePath が設定されていません。");
 		return;
 	}
 
