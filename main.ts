@@ -129,7 +129,7 @@ const writeFile = async (content: string, filePath: string) => {
 
 const main = async () => {
 	const owner = Deno.env.get("GH_OWNER");
-	const repo = Deno.env.get("GH_REPOSITORY");
+	const repo = Deno.env.get("GH_REPO");
 	const directoryPath = Deno.env.get("TARGET_DIRECTORY_PATH");
 	const hashFilePath = Deno.env.get("HASH_FILE_PATH");
 
