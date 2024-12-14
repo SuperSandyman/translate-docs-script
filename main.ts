@@ -75,16 +75,20 @@ interface FileInfo {
 const loadAndDetectDiffs = async ( repoFiles: FileInfo[], hashFilePath: string ) => {
 	try {
 		const hashData = await Deno.readTextFile(hashFilePath);
-		const exitingsHashes = JSON.parse(hashData);
+		const existingsHashes = JSON.parse(hashData);
 
 		const changedFiles = repoFiles.filter((file) => {
-			return exitingsHashes[file.path] !== file.sha;
+			return existingsHashes[file.path] !== file.sha;
 		})
 
 		return changedFiles;
 	} catch (error) {
-		console.error(error);
-		return [];
+		if (error instanceof Deno.errors.NotFound) {
+			console.log("ハッシュファイルが見つかりませんでした。");
+			return repoFiles;
+		} else {
+			console.error(error);
+		}
 	}
 }
 
@@ -152,23 +156,28 @@ const main = async () => {
 
 	const changedFiles = await loadAndDetectDiffs(filesInRepo, hashFilePath);
 
-	console.log("変更されたファイル：", changedFiles);
+    if (changedFiles && changedFiles.length > 0) {
+        console.log("変更されたファイル：", changedFiles);
 
-	for (const file of changedFiles) {
-		const translatedContent = await translateText(file.content_url);
-        if (translatedContent !== undefined) {
-            await writeFile(translatedContent, file.path);
-        } else {
-            console.error(`Translation returned undefined for: ${file.content_url}`);
+        for (const file of changedFiles) {
+            const translatedContent = await translateText(file.content_url);
+            if (translatedContent !== undefined) {
+                await writeFile(translatedContent, file.path);
+            } else {
+                console.error(`Translation returned undefined for: ${file.content_url}`);
+            }
         }
-	}
 
-	const newHashes: Record<string, string> = changedFiles.reduce((acc, file) => {
-		acc[file.path] = file.sha;
-		return acc;
-	}, {} as Record<string, string>);
+        // 新しいハッシュを生成
+        const newHashes: Record<string, string> = changedFiles.reduce((acc, file) => {
+            acc[file.path] = file.sha;
+            return acc;
+        }, {} as Record<string, string>);
 
-	await saveHashToJson(JSON.stringify(newHashes), hashFilePath);
+        await saveHashToJson(JSON.stringify(newHashes, null, 2), hashFilePath);
+    } else {
+        console.log("変更されたファイルはありません。");
+    }
 }
 
 await main();
