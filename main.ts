@@ -133,6 +133,11 @@ const main = async () => {
 	const directoryPath = Deno.env.get("TARGET_DIRECTORY_PATH");
 	const hashFilePath = Deno.env.get("HASH_FILE_PATH");
 
+	console.log("owner:", owner);
+	console.log("repo:", repo);
+	console.log("directoryPath:", directoryPath);
+	console.log("hashFilePath:", hashFilePath);
+
 	if (!owner || !repo || !directoryPath || !hashFilePath) {
 		console.error("owner, repo, directoryPath, hashFilePath が設定されていません。");
 		return;
