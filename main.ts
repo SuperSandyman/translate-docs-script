@@ -122,7 +122,16 @@ const translateText = async (content_url: string) => {
 	}
 	const resp = await generativeModel.generateContent(request);
 
-	return JSON.stringify(await resp.response);
+    if (resp.response.candidates && resp.response.candidates.length > 0) {
+        const extractedTexts = resp.response.candidates.flatMap(candidate => 
+            candidate.content.parts.map(part => part.text)
+        );
+        
+        return extractedTexts; // ここでtextを返す
+    } else {
+        console.error("No candidates found in the response.");
+        return; // 何も返さない（undefinedを返す）
+    }
 }
 
 const writeFile = async (content: string, filePath: string) => {
@@ -166,7 +175,7 @@ const main = async () => {
         for (const file of changedFiles) {
             const translatedContent = await translateText(file.content_url);
             if (translatedContent !== undefined) {
-                await writeFile(translatedContent, file.path);
+				await writeFile(translatedContent.join('\n'), file.path);
             } else {
                 console.error(`Translation returned undefined for: ${file.content_url}`);
             }
