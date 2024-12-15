@@ -21,6 +21,7 @@ const saveHashToJson = async (data: string, hashFilePath: string) => {
 		console.log(`${hashFilePath}にハッシュ値を保存しました。`);
 	} catch (error) {
 		console.error(error);
+		Deno.exit(1);
 	}
 };
 
@@ -34,7 +35,7 @@ const getFilesInDirectory = async (
 
 		if (!extention) {
 			console.error("extension が設定されていません。");
-			return;
+			Deno.exit(1);
 		}
 
 		const { data: repoData } = await octokit.rest.repos.get({ owner, repo });
@@ -63,6 +64,7 @@ const getFilesInDirectory = async (
 		}));
 	} catch (error) {
 		console.error(error);
+		Deno.exit(1);
 	}
 };
 
@@ -88,6 +90,7 @@ const loadAndDetectDiffs = async ( repoFiles: FileInfo[], hashFilePath: string )
 			return repoFiles;
 		} else {
 			console.error(error);
+			Deno.exit(1);
 		}
 	}
 }
@@ -128,6 +131,7 @@ const writeFile = async (content: string, filePath: string) => {
 		console.log(`${filePath}に翻訳結果を保存しました。`);
 	} catch (error) {
 		console.error(error);
+		Deno.exit(1);
 	}
 }
 
@@ -144,14 +148,14 @@ const main = async () => {
 
 	if (!owner || !repo || !directoryPath || !hashFilePath) {
 		console.error("owner, repo, directoryPath, hashFilePath が設定されていません。");
-		return;
+		Deno.exit(1);
 	}
 
 	const filesInRepo = await getFilesInDirectory(owner, repo, directoryPath);
 
 	if (!filesInRepo) {
 		console.error("ファイルが見つかりませんでした。");
-		return;
+		Deno.exit(1);
 	}
 
 	const changedFiles = await loadAndDetectDiffs(filesInRepo, hashFilePath);
@@ -175,8 +179,11 @@ const main = async () => {
         }, {} as Record<string, string>);
 
         await saveHashToJson(JSON.stringify(newHashes, null, 2), hashFilePath);
+
+		Deno.exit(0);
     } else {
         console.log("変更されたファイルはありません。");
+		Deno.exit(0);
     }
 }
 
