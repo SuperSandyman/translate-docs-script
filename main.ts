@@ -74,13 +74,14 @@ interface FileInfo {
 	content_url: string;
 }
 
-const loadAndDetectDiffs = async ( repoFiles: FileInfo[], hashFilePath: string ) => {
+const loadAndDetectDiffs = async ( repoFiles: FileInfo[], hashFilePath: string, excludedFiles: string[] = [] ) => {
 	try {
 		const hashData = await Deno.readTextFile(hashFilePath);
 		const existingsHashes = JSON.parse(hashData);
 
 		const changedFiles = repoFiles.filter((file) => {
-			return existingsHashes[file.path] !== file.sha;
+			const isExcluded = excludedFiles.includes(file.path);
+			return !isExcluded && existingsHashes[file.path] !== file.sha;
 		})
 
 		return changedFiles;
@@ -167,7 +168,9 @@ const main = async () => {
 		Deno.exit(1);
 	}
 
-	const changedFiles = await loadAndDetectDiffs(filesInRepo, hashFilePath);
+	const excludedFiles = Deno.env.get("EXCLUDED_FILES")?.split(',');
+
+	const changedFiles = await loadAndDetectDiffs(filesInRepo, hashFilePath, excludedFiles);
 
     if (changedFiles && changedFiles.length > 0) {
         console.log("変更されたファイル：", changedFiles);
